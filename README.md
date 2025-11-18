@@ -97,6 +97,58 @@ Write the specification for a software module on the API service (backend applic
 
 ---
 
+## 🧪 Testing
+
+![Testing Guidance](./testing_guidance.gif)
+
+### Quick Start - Test All Problems
+
+Run a single command to test all problems automatically:
+
+```bash
+npm test
+```
+
+This will:
+- ✅ Run automated tests for Problem 4 (Jest tests)
+- ✅ Start Problem 5 server and test all CRUD endpoints
+- ✅ Display test results for both problems
+
+### Test Individual Problems
+
+```bash
+# Test only Problem 4
+npm run test:problem4
+
+# Test only Problem 5
+npm run test:problem5
+```
+
+### Manual Testing (Optional)
+
+**Problem 4:**
+```bash
+cd problem-4
+npm install  # First time only
+npm test
+```
+
+**Problem 5:**
+```bash
+# Start server
+npm run dev:problem5
+
+# In another terminal, test endpoints
+curl http://localhost:3000/health
+curl http://localhost:3000/api/resources
+# See problem-5/README.md for more examples
+```
+
+**Problem 6:**
+This problem is documentation-based. Review the architecture documentation in [`problem-6/`](./problem-6/).
+
+---
+
 ## 📝 Notes
 
 - Each problem folder contains its own README with detailed instructions

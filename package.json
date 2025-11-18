@@ -4,7 +4,9 @@
     "description": "Technical test for 99techteam - Backend challenges",
     "private": true,
     "scripts": {
-        "test:problem4": "cd problem-4 && npm test",
+        "test": "bash scripts/test-all.sh",
+        "test:problem4": "bash scripts/test-problem4.sh",
+        "test:problem5": "bash scripts/test-problem5.sh",
         "dev:problem5": "cd problem-5 && npm run dev",
         "build:problem5": "cd problem-5 && npm run build"
     },

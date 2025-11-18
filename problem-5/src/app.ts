@@ -4,6 +4,7 @@
  */
 
 import express, { Express, Request, Response, NextFunction } from 'express';
+import resourceRoutes from './routes/resourceRoutes';
 
 export const app: Express = express();
 
@@ -17,8 +18,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API routes
-// TODO: Implement CRUD routes
-// app.use('/api/resources', resourceRoutes);
+app.use('/api/resources', resourceRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

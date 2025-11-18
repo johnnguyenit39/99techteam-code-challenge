@@ -46,7 +46,6 @@ problem-5/
 
 - Node.js (v18 or higher)
 - npm or yarn
-- Database (SQLite/PostgreSQL/MySQL - as configured)
 
 ### Installation
 
@@ -55,17 +54,17 @@ problem-5/
 npm install
 ```
 
-2. Copy environment file:
+2. (Optional) Create `.env` file for custom configuration:
 ```bash
-cp .env.example .env
+# Create .env file (optional - defaults work out of the box)
+cat > .env << EOF
+PORT=3000
+NODE_ENV=development
+DATABASE_PATH=./data/database.db
+EOF
 ```
 
-3. Update `.env` with your database configuration:
-```env
-PORT=3000
-DATABASE_URL=your_database_url
-NODE_ENV=development
-```
+The database (SQLite) will be automatically created in the `data/` directory on first run. No additional database setup is required.
 
 ### Running the Application
 
@@ -94,41 +93,147 @@ http://localhost:3000/api
 
 ### Endpoints
 
-- `POST /api/resources` - Create a new resource
-- `GET /api/resources` - List all resources (with filters)
-- `GET /api/resources/:id` - Get a specific resource
-- `PUT /api/resources/:id` - Update a resource
-- `DELETE /api/resources/:id` - Delete a resource
+#### `POST /api/resources` - Create a new resource
+Creates a new resource with the provided data.
 
-### Example Requests
+**Request Body:**
+```json
+{
+  "name": "Resource Name",
+  "description": "Optional description"
+}
+```
 
-**Create Resource:**
+**Response:** `201 Created`
+```json
+{
+  "id": 1,
+  "name": "Resource Name",
+  "description": "Optional description",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
 ```bash
 curl -X POST http://localhost:3000/api/resources \
   -H "Content-Type: application/json" \
   -d '{"name": "Example", "description": "Example description"}'
 ```
 
-**List Resources:**
-```bash
-curl http://localhost:3000/api/resources?limit=10&offset=0
+#### `GET /api/resources` - List all resources (with filters)
+Retrieves a list of resources with optional filtering and pagination.
+
+**Query Parameters:**
+- `limit` (optional): Number of results to return (default: 100, max: 1000)
+- `offset` (optional): Number of results to skip (default: 0)
+- `search` (optional): Search term to filter by name or description
+
+**Response:** `200 OK`
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Resource Name",
+      "description": "Description",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "total": 1,
+    "limit": 100,
+    "offset": 0
+  }
+}
 ```
 
-**Get Resource:**
+**Examples:**
+```bash
+# Get all resources
+curl http://localhost:3000/api/resources
+
+# With pagination
+curl http://localhost:3000/api/resources?limit=10&offset=0
+
+# With search
+curl http://localhost:3000/api/resources?search=example
+```
+
+#### `GET /api/resources/:id` - Get a specific resource
+Retrieves a single resource by ID.
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "name": "Resource Name",
+  "description": "Description",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T00:00:00.000Z"
+}
+```
+
+**Example:**
 ```bash
 curl http://localhost:3000/api/resources/1
 ```
 
-**Update Resource:**
+#### `PUT /api/resources/:id` - Update a resource
+Updates an existing resource. All fields are optional.
+
+**Request Body:**
+```json
+{
+  "name": "Updated Name",
+  "description": "Updated description"
+}
+```
+
+**Response:** `200 OK`
+```json
+{
+  "id": 1,
+  "name": "Updated Name",
+  "description": "Updated description",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-01-01T01:00:00.000Z"
+}
+```
+
+**Example:**
 ```bash
 curl -X PUT http://localhost:3000/api/resources/1 \
   -H "Content-Type: application/json" \
-  -d '{"name": "Updated Name"}'
+  -d '{"name": "Updated Name", "description": "New description"}'
 ```
 
-**Delete Resource:**
+#### `DELETE /api/resources/:id` - Delete a resource
+Deletes a resource by ID.
+
+**Response:** `204 No Content`
+
+**Example:**
 ```bash
 curl -X DELETE http://localhost:3000/api/resources/1
+```
+
+### Error Responses
+
+All endpoints return appropriate HTTP status codes:
+
+- `400 Bad Request` - Validation error (invalid input)
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
+
+Error response format:
+```json
+{
+  "error": "Error type",
+  "message": "Detailed error message"
+}
 ```
 
 ## Technology Stack
@@ -136,13 +241,51 @@ curl -X DELETE http://localhost:3000/api/resources/1
 - **Runtime:** Node.js
 - **Framework:** Express.js
 - **Language:** TypeScript
-- **Database:** (To be configured - SQLite recommended for simplicity)
-- **ORM/Query Builder:** (To be configured)
+- **Database:** SQLite (better-sqlite3)
+- **Database Location:** `./data/database.db` (created automatically)
+
+## Project Structure
+
+```
+problem-5/
+├── README.md              # This file
+├── package.json           # Dependencies and scripts
+├── tsconfig.json          # TypeScript configuration
+├── .env.example           # Environment variables template (optional)
+├── data/                  # Database directory (auto-created)
+│   └── database.db        # SQLite database file
+└── src/
+    ├── index.ts           # Entry point
+    ├── app.ts             # Express app setup
+    ├── config/
+    │   └── database.ts    # Database configuration and initialization
+    ├── models/
+    │   └── Resource.ts    # Resource model and DTOs
+    ├── services/
+    │   └── resourceService.ts  # Business logic and database operations
+    ├── controllers/
+    │   └── resourceController.ts  # Request handlers
+    └── routes/
+        └── resourceRoutes.ts     # API route definitions
+```
+
+## Features
+
+- ✅ Full CRUD operations (Create, Read, Update, Delete)
+- ✅ Input validation on all endpoints
+- ✅ Pagination support (limit/offset)
+- ✅ Search functionality (by name or description)
+- ✅ Error handling with appropriate HTTP status codes
+- ✅ SQLite database with automatic initialization
+- ✅ TypeScript for type safety
+- ✅ Clean architecture (models, services, controllers, routes)
 
 ## Notes
 
 - All endpoints return JSON responses
 - Error handling is implemented with appropriate HTTP status codes
 - Input validation is performed on all requests
-- Database migrations and seeders can be found in the `src/db/` directory
+- Database is automatically created and initialized on first run
+- The database file is stored in the `data/` directory
+- All timestamps are stored in ISO 8601 format
 
